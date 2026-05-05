@@ -1,11 +1,18 @@
 import { useSelector, useDispatch } from "react-redux";
-import { cancelOrder } from "../features/orders/orderSlice";
+import { cancelOrder, fetchOrders } from "../features/orders/orderSlice";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Orders = () => {
-  const { orders } = useSelector(state => state.orders);
+  const { orders, status, error } = useSelector(state => state.orders);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchOrders());
+    }
+  }, [dispatch, status]);
 
   const handleCancelOrder = (orderId) => {
     const confirmed = window.confirm("Are you sure you want to cancel this order?");
@@ -14,19 +21,22 @@ const Orders = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    if (status === "cancelled") return "var(--danger)";
+  const getStatusColor = (statusValue) => {
+    if (statusValue === "cancelled") return "var(--danger)";
     return "var(--success)";
   };
 
-  const getStatusEmoji = (status) => {
-    if (status === "cancelled") return "❌";
+  const getStatusEmoji = (statusValue) => {
+    if (statusValue === "cancelled") return "❌";
     return "✅";
   };
 
   return (
     <div className="container">
       <h2>📦 Order History</h2>
+
+      {status === "loading" ? <p>Loading your orders...</p> : null}
+      {error ? <p style={{ color: "var(--danger)" }}>{error}</p> : null}
 
       {orders && orders.length > 0 ? (
         <div style={{maxWidth: '800px', margin: '0 auto'}}>
@@ -61,7 +71,7 @@ const Orders = () => {
                   <div style={{marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)'}}>
                     <p style={{fontSize: '0.9rem', fontWeight: '600', margin: '0 0 0.5rem 0'}}>Items:</p>
                     {order.items.map(item => (
-                      <p key={item.id} style={{fontSize: '0.85rem', color: 'var(--text-light)', margin: '0.25rem 0', paddingLeft: '1rem'}}>
+                      <p key={`${order.id}-${item.productId || item.id}`} style={{fontSize: '0.85rem', color: 'var(--text-light)', margin: '0.25rem 0', paddingLeft: '1rem'}}>
                         • {item.name} (x{item.qty}) - ${(item.price * item.qty).toFixed(2)}
                       </p>
                     ))}
@@ -86,13 +96,15 @@ const Orders = () => {
             </div>
           ))}
         </div>
-      ) : (
+      ) : null}
+
+      {status !== "loading" && orders.length === 0 ? (
         <div className="empty-state">
           <h3>No orders yet</h3>
           <p>Your order history will appear here after you make your first purchase</p>
           <button onClick={() => navigate("/")} style={{marginTop: '1rem'}}>Start Shopping</button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

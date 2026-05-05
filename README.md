@@ -1,146 +1,51 @@
-# 🛒 E-Commerce Website (React + Redux)
+# E-Commerce Website
 
-## 📌 Project Description
+This repository now contains both the React frontend and the MongoDB-backed Express server.
 
-This project is a simple **E-commerce web application** built using **React and Redux Toolkit**.
-It allows users to browse products, add them to a cart, authenticate, and place orders.
+## Structure
 
-The goal of this project is to demonstrate core concepts of modern frontend development such as **state management, routing, and component-based architecture**.
+- `src/`: React + Redux frontend
+- `server/`: Express + MongoDB backend copied from the other folder
 
----
+## Integrated API
 
-## 🚀 Features
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/me`
+- `GET /products`
 
-* 🔐 **User Authentication**
+The frontend now uses the backend for authentication and product loading. Cart and orders remain client-side Redux state.
 
-  * Login functionality using Redux
-  * Protected routes for checkout and orders
+## Setup
 
-* 🛍️ **Product Catalog**
+1. Install dependencies:
 
-  * Displays list of products
-  * Search functionality to filter products
-
-* 🛒 **Cart Management**
-
-  * Add items to cart
-  * Increase quantity automatically
-  * Remove items from cart
-
-* 💳 **Checkout System**
-
-  * Place orders from cart items
-
-* 📦 **Order History**
-
-  * View previously placed orders
-
----
-
-## 🛠️ Tech Stack
-
-* **Frontend:** React
-* **State Management:** Redux Toolkit
-* **Routing:** React Router DOM
-* **Styling:** CSS
-
----
-
-## 📂 Project Structure
-
-```
-src/
-│
-├── app/
-│   └── store.js
-│
-├── components/
-│   ├── Navbar.jsx
-│   └── ProtectedRoute.jsx
-│
-├── features/
-│   ├── auth/
-│   │   └── authSlice.js
-│   ├── cart/
-│   │   └── cartSlice.js
-│   ├── products/
-│   │   └── productSlice.js
-│   └── orders/
-│       └── orderSlice.js
-│
-├── pages/
-│   ├── Home.jsx
-│   ├── Login.jsx
-│   ├── Register.jsx
-│   ├── Cart.jsx
-│   ├── Checkout.jsx
-│   └── Orders.jsx
-│
-├── routes/
-│   └── AppRoutes.jsx
-│
-├── App.jsx
-├── main.jsx
-└── index.css
-```
-
----
-
-## ⚙️ Installation & Setup
-
-1. Clone the repository:
-
-```
-git clone https://github.com/your-username/ecommerce-project.git
-```
-
-2. Navigate to project folder:
-
-```
-cd ecommerce-project
-```
-
-3. Install dependencies:
-
-```
+```bash
 npm install
 ```
 
-4. Run the project:
+2. Create `.env` from `.env.example`.
 
+3. Start MongoDB locally, or update `MONGODB_URI` to your MongoDB connection string.
+
+4. Run everything together:
+
+```bash
+npm run dev:full
 ```
+
+Or run each part separately:
+
+```bash
+npm run server:dev
 npm run dev
 ```
 
----
+## Environment
 
-## 🧠 Key Concepts Used
-
-* Redux global state management
-* React Hooks (`useState`, `useSelector`, `useDispatch`)
-* Protected routing
-* Component-based architecture
-* Conditional rendering
-
----
-
-## 📸 Screenshots
-
-<img width="1884" height="1006" alt="image" src="https://github.com/user-attachments/assets/de2dead2-5be7-4c80-a17e-0e5b2dbb1d8d" />
-
-
----
-
-## 🎯 Future Improvements
-
-* Add product images
-* Integrate real backend (Node.js / Firebase)
-* Payment gateway integration
-* Improve UI with Tailwind CSS
-* Add user signup system
-
----
-
-## 📄 License
-
-This project is for educational purposes only.
+```env
+MONGODB_URI=mongodb://127.0.0.1:27017/ecommerce
+TOKEN_SECRET=change-me
+PORT=3000
+VITE_API_BASE_URL=http://localhost:3000
+```

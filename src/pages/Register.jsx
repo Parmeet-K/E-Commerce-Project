@@ -1,19 +1,29 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { register } from "../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 
 const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { status, error } = useSelector((state) => state.auth);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    if (name.trim() && email.trim()) {
-      dispatch(register({ name: name.trim(), email: email.trim() }));
-      navigate("/");
+    if (name.trim() && email.trim() && password.trim()) {
+      const result = await dispatch(
+        register({
+          name: name.trim(),
+          email: email.trim(),
+          password: password.trim(),
+        })
+      );
+      if (register.fulfilled.match(result)) {
+        navigate("/");
+      }
     }
   };
 
@@ -47,12 +57,27 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <button type="submit">Create Account</button>
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="Create a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {error ? <p style={{ color: "var(--danger)" }}>{error}</p> : null}
+
+          <div className="form-group">
+            <button type="submit" disabled={status === "loading"}>
+              {status === "loading" ? "Creating Account..." : "Create Account"}
+            </button>
           </div>
         </form>
 
         <p style={{textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-light)'}}>
-          Already have an account? <a href="/login" style={{color: 'var(--primary)', textDecoration: 'none', fontWeight: '600'}}>Sign In</a>
+          Already have an account? <Link to="/login" style={{color: 'var(--primary)', textDecoration: 'none', fontWeight: '600'}}>Sign In</Link>
         </p>
       </div>
     </div>

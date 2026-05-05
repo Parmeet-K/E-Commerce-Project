@@ -1,25 +1,59 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import api from "../../lib/api";
+
+export const fetchProducts = createAsyncThunk(
+  "products/fetchProducts",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/products", {
+        params: { limit: 50, sort: "name" },
+      });
+      return response.data.items;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || "Unable to load products");
+    }
+  }
+);
+
+export const fetchCategories = createAsyncThunk(
+  "products/fetchCategories",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/categories");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.error || "Unable to load categories");
+    }
+  }
+);
 
 const productSlice = createSlice({
   name: "products",
   initialState: {
-    items: [
-      { id: 1, name: "Wireless Headphones", price: 79.99, description: "Premium sound quality" },
-      { id: 2, name: "Smart Watch", price: 199.99, description: "Track your fitness" },
-      { id: 3, name: "USB-C Cable", price: 12.99, description: "Fast charging" },
-      { id: 4, name: "Portable Charger", price: 34.99, description: "20000mAh capacity" },
-      { id: 5, name: "Phone Stand", price: 15.99, description: "Adjustable design" },
-      { id: 6, name: "Screen Protector", price: 9.99, description: "Case friendly" },
-      { id: 7, name: "Bluetooth Speaker", price: 49.99, description: "360° sound" },
-      { id: 8, name: "Phone Case", price: 19.99, description: "Shockproof" },
-    ],
+    items: [],
+    categories: [],
+    status: "idle",
+    error: null,
   },
-  reducers: {
-    setProducts: (state, action) => {
-      state.items = action.payload;
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProducts.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.items = action.payload;
+      })
+      .addCase(fetchProducts.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.categories = action.payload;
+      });
   },
 });
 
-export const { setProducts } = productSlice.actions;
 export default productSlice.reducer;

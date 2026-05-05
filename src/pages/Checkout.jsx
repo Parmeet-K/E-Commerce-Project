@@ -19,6 +19,7 @@ const Checkout = () => {
     zipCode: "",
   });
   const [addressError, setAddressError] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
 
@@ -29,6 +30,7 @@ const Checkout = () => {
       [name]: value
     }));
     setAddressError("");
+    setSubmitError("");
   };
 
   const validateAddress = () => {
@@ -39,29 +41,31 @@ const Checkout = () => {
     return true;
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!validateAddress()) {
       return;
     }
 
-    const newOrderId = "ORD-" + Date.now();
-    setOrderId(newOrderId);
-    setOrderTotal(total);
-
     const fullAddress = `${address.street}, ${address.city}, ${address.state} ${address.zipCode}`;
-
-    dispatch(placeOrder({
-      id: newOrderId,
+    const result = await dispatch(placeOrder({
       items: cartItems,
       address: fullAddress,
     }));
+
+    if (placeOrder.rejected.match(result)) {
+      setSubmitError(result.payload || "Unable to place order");
+      return;
+    }
+
+    setOrderId(result.payload.orderId);
+    setOrderTotal(result.payload.totalAmount);
     dispatch(clearCart());
     setOrderPlaced(true);
   };
 
-  const handleCancelOrder = () => {
+  const handleCancelOrder = async () => {
     if (orderId) {
-      dispatch(cancelOrder(orderId));
+      await dispatch(cancelOrder(orderId));
       setOrderPlaced(false);
       setOrderId(null);
       setOrderTotal(0);
@@ -147,6 +151,12 @@ const Checkout = () => {
             {addressError && (
               <div style={{background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.9rem'}}>
                 ⚠️ {addressError}
+              </div>
+            )}
+
+            {submitError && (
+              <div style={{background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.9rem'}}>
+                ⚠️ {submitError}
               </div>
             )}
 

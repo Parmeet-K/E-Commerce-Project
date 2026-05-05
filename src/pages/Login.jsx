@@ -1,19 +1,22 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { status, error } = useSelector((state) => state.auth);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (name.trim() && email.trim()) {
-      dispatch(login({ name: name.trim(), email: email.trim() }));
-      navigate("/");
+      const result = await dispatch(login({ name: name.trim(), email: email.trim() }));
+      if (login.fulfilled.match(result)) {
+        navigate("/");
+      }
     }
   };
 
@@ -46,13 +49,17 @@ const Login = () => {
           />
         </div>
 
+        {error ? <p style={{ color: "var(--danger)" }}>{error}</p> : null}
+
         <div className="form-group">
-          <button type="submit">Sign In</button>
+          <button type="submit" disabled={status === "loading"}>
+            {status === "loading" ? "Signing In..." : "Sign In"}
+          </button>
         </div>
       </form>
 
       <p style={{textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-light)'}}>
-        Don't have an account? <a href="/register" style={{color: 'var(--primary)', textDecoration: 'none', fontWeight: '600'}}>Create one</a>
+        Don't have an account? <Link to="/register" style={{color: 'var(--primary)', textDecoration: 'none', fontWeight: '600'}}>Create one</Link>
       </p>
     </div>
   </div>

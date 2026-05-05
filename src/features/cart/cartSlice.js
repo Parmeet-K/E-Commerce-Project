@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+function getProductId(item) {
+  return item._id || item.id;
+}
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
@@ -7,18 +11,19 @@ const cartSlice = createSlice({
   },
   reducers: {
     addToCart: (state, action) => {
-      const item = state.cartItems.find(i => i.id === action.payload.id);
+      const productId = getProductId(action.payload);
+      const item = state.cartItems.find((cartItem) => getProductId(cartItem) === productId);
       if (item) {
         item.qty += 1;
       } else {
-        state.cartItems.push({ ...action.payload, qty: 1 });
+        state.cartItems.push({ ...action.payload, id: productId, qty: 1 });
       }
     },
     removeFromCart: (state, action) => {
-      state.cartItems = state.cartItems.filter(i => i.id !== action.payload);
+      state.cartItems = state.cartItems.filter((item) => getProductId(item) !== action.payload);
     },
     updateQty: (state, action) => {
-      const item = state.cartItems.find(i => i.id === action.payload.id);
+      const item = state.cartItems.find((cartItem) => getProductId(cartItem) === action.payload.id);
       if (item) item.qty = action.payload.qty;
     },
     clearCart: (state) => {

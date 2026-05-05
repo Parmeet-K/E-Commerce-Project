@@ -8,6 +8,8 @@ import Checkout from "../pages/Checkout";
 import Orders from "../pages/Orders";
 import Navbar from "../components/Navbar";
 import ProtectedRoute from "../components/ProtectedRoute";
+import ProductDetails from "../pages/ProductDetails";
+import AdminProducts from "../pages/AdminProducts";
 
 const AppRoutes = () => {
   const { user } = useSelector(state => state.auth);
@@ -16,20 +18,25 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Navbar />
       <Routes>
-        {/* Redirect to login if not authenticated */}
         <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
 
-        {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected routes */}
+        <Route path="/products/:productId" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
         <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+        <Route
+          path="/admin/products"
+          element={
+            <ProtectedRoute roles={["admin", "manager"]}>
+              <AdminProducts />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
       </Routes>
     </BrowserRouter>
   );
